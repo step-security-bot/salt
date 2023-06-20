@@ -81,7 +81,7 @@ vtBIWO4LPeGEvb2Gs65PL2eouOqU6yvBr5Y=
 ## Reporting a Vulnerability - Private Disclosure Process
 
 The Salt Project Security Team is available at security@saltstack.com for
-security-related bug reports or questions. Emails will be addressed within 3 business days.
+security-related bug reports or questions. Emails will be addressed as soon as possible.
 
 We request the disclosure of any security-related bugs or issues be reported
 non-publicly until such time as the issue can be resolved and a security-fix
