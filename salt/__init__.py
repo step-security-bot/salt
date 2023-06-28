@@ -4,6 +4,7 @@ Salt package
 
 import asyncio
 import importlib
+import locale
 import sys
 import warnings
 
@@ -44,11 +45,6 @@ warnings.filterwarnings(
 
 
 def __define_global_system_encoding_variable__():
-    import sys
-
-    print("define global system encoding")
-    sys.stdout.flush()
-
     # This is the most trustworthy source of the system encoding, though, if
     # salt is being imported after being daemonized, this information is lost
     # and reset to None
@@ -98,7 +94,6 @@ def __define_global_system_encoding_variable__():
     setattr(builtins, "__salt_system_encoding__", encoding)
 
     # This is now garbage collectable
-    del sys
     del builtins
     del encoding
 
