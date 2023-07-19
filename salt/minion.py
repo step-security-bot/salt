@@ -3250,7 +3250,6 @@ class Minion(MinionBase):
         if self._running is False:
             return
 
-        self.io_loop.asyncio_loop.stop()
         self._running = False
         if hasattr(self, "schedule"):
             del self.schedule
