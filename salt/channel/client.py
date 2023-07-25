@@ -607,7 +607,6 @@ class AsyncPushChannel:
         return salt.transport.ipc.IPCMessageClient(opts, **kwargs)
 
 
-# XXX This is deprecated remove in 3008
 class AsyncPullChannel:
     """
     Factory class to create IPC pull channels
