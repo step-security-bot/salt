@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+
+  - package-ecosystem: bundler
+    directory: /
+    schedule:
+      interval: daily
+
+  - package-ecosystem: docker
+    directory: /tests/integration/files/file/base
+    schedule:
+      interval: daily
+
+  - package-ecosystem: docker
+    directory: /tests/integration/files/file/base/docker_non_root
+    schedule:
+      interval: daily
+
+  - package-ecosystem: bundler
+    directory: /tests/kitchen
+    schedule:
+      interval: daily

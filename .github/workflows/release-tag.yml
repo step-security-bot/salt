@@ -33,6 +33,11 @@ jobs:
     name: Generate Tag and Github Release
     runs-on: ubuntu-latest
     steps:
+    - name: Harden Runner
+      uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+      with:
+        egress-policy: audit
+
     - uses: dev-drprasad/delete-tag-and-release@v0.2.0
       if: github.event.inputs.reTag == 'true'
       with:
@@ -41,24 +46,24 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
       with:
         repository: ${{ github.event.inputs.saltRepo }}
         ref: ${{ github.event.inputs.saltBranch }}
     - name: Bump version and push tag
       id: tag_version
-      uses: mathieudutour/github-tag-action@v5.6
+      uses: mathieudutour/github-tag-action@4c5d8c555a7cc4dca5e65d90b67dcddbb52ef77e # v5.6
       with:
         create_annotated_tag: True
         github_token: ${{ secrets.GITHUB_TOKEN }}
         custom_tag: ${{ github.event.inputs.saltVersion }}
 
     - name: Set up Python 3.8
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # v4.7.0
       with:
         python-version: 3.8
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
     - name: Install pypa/build
       run: |
         python -m pip install build --user
@@ -73,7 +78,7 @@ jobs:
         python3 setup.py --ssh-packaging sdist
         python -m build --sdist --outdir dist/ .
     - name: Create a GitHub release
-      uses: ncipollo/release-action@v1
+      uses: ncipollo/release-action@a2e71bdd4e7dab70ca26a852f29600c98b33153e # v1.12.0
       with:
         tag: ${{ steps.tag_version.outputs.new_tag }}
         name: Release ${{ steps.tag_version.outputs.new_tag }}

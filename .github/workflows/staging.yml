@@ -51,8 +51,13 @@ jobs:
     runs-on: ubuntu-latest
     environment: staging-check
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
       - name: Check For Admin Permission
-        uses: actions-cool/check-user-permission@v2
+        uses: actions-cool/check-user-permission@cd622002ff25c2311d2e7fb82107c0d24be83f9b # v2.2.0
         with:
           require: admin
           username: ${{ github.triggering_actor }}
@@ -75,14 +80,19 @@ jobs:
       release-changelog-target: ${{ steps.get-release-changelog-target.outputs.release-changelog-target }}
       testing-releases: ${{ steps.get-testing-releases.outputs.testing-releases }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
         with:
           fetch-depth: 0  # Full clone to also get the tags to get the right salt version
 
       - name: Get Changed Files
         if: ${{ github.event_name == 'pull_request'}}
         id: changed-files
-        uses: dorny/paths-filter@v2
+        uses: dorny/paths-filter@4512585405083f25c027a35db413c2b3b9006d50 # v2.11.1
         with:
           token: ${{ github.token }}
           list-files: json
@@ -156,7 +166,7 @@ jobs:
                 - *pkg_tests_added_modified
 
       - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # v4.7.0
         with:
           python-version: "3.10"
 
@@ -266,7 +276,7 @@ jobs:
 
       - name: Upload testrun-changed-files.txt
         if: ${{ fromJSON(steps.define-testrun.outputs.testrun)['type'] != 'full' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: testrun-changed-files.txt
           path: testrun-changed-files.txt
@@ -306,7 +316,12 @@ jobs:
     needs:
       - prepare-workflow
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Get Python Version
         id: get-python-version
@@ -319,13 +334,13 @@ jobs:
         uses: ./.github/actions/setup-python-tools-scripts
 
       - name: Cache Python Tools Docs Virtualenv
-        uses: actions/cache@v3
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
         with:
           path: .tools-venvs/docs
           key: ${{ needs.prepare-workflow.outputs.cache-seed }}|${{ github.workflow }}|${{ github.job }}|tools-venvs|${{ steps.python-tools-scripts.outputs.version }}|docs|${{ steps.get-python-version.outputs.version }}|${{ hashFiles('requirements/**/docs.txt') }}
 
       - name: Cache Python Tools Changelog Virtualenv
-        uses: actions/cache@v3
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
         with:
           path: .tools-venvs/changelog
           key: ${{ needs.prepare-workflow.outputs.cache-seed }}|${{ github.workflow }}|${{ github.job }}|tools-venvs|${{ steps.python-tools-scripts.outputs.version }}|changelog|${{ steps.get-python-version.outputs.version }}|${{ hashFiles('requirements/**/changelog.txt') }}
@@ -427,7 +442,7 @@ jobs:
           git format-patch --keep-subject --binary --stdout HEAD^ > salt-${{ needs.prepare-workflow.outputs.salt-version }}.patch
 
       - name: Upload Changes Diff Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         if: ${{ startsWith(github.event.ref, 'refs/tags') == false }}
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}.patch
@@ -454,10 +469,15 @@ jobs:
       - prepare-release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # v4.7.0
         with:
           python-version: "3.10"
 
@@ -478,7 +498,7 @@ jobs:
           salt-version: "${{ needs.prepare-workflow.outputs.salt-version }}"
 
       - name: Cache Python Tools Build Virtualenv
-        uses: actions/cache@v3
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
         with:
           path: .tools-venvs/build
           key: ${{ needs.prepare-workflow.outputs.cache-seed }}|${{ github.workflow }}|${{ github.job }}|tools-venvs|${{ steps.python-tools-scripts.outputs.version }}|build|${{ steps.get-python-version.outputs.version }}|${{ hashFiles('requirements/**/build.txt') }}
@@ -1357,7 +1377,12 @@ jobs:
       - prepare-workflow
       - build-salt-onedir
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Setup Python Tools Scripts
         uses: ./.github/actions/setup-python-tools-scripts
@@ -1369,7 +1394,7 @@ jobs:
           echo "SPB_ENVIRONMENT=$SPB_ENVIRONMENT" >> "$GITHUB_ENV"
 
       - name: Download Source Tarball
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}.tar.gz
           path: artifacts/pkgs/incoming
@@ -1419,7 +1444,7 @@ jobs:
           find artifacts/pkgs/repo -type f -print -exec cp {} artifacts/src \;
 
       - name: Upload Standalone Repository As An Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-staging-src-repo
           path: |
@@ -1478,7 +1503,12 @@ jobs:
             arch: aarch64
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Download System Dependencies
         run: |
@@ -1495,7 +1525,7 @@ jobs:
           echo "SPB_ENVIRONMENT=$SPB_ENVIRONMENT" >> "$GITHUB_ENV"
 
       - name: Download DEB Packages
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-${{ matrix.arch }}-deb
           path: artifacts/pkgs/incoming
@@ -1619,7 +1649,12 @@ jobs:
             arch: aarch64
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Download System Dependencies
         run: |
@@ -1636,7 +1671,7 @@ jobs:
           echo "SPB_ENVIRONMENT=$SPB_ENVIRONMENT" >> "$GITHUB_ENV"
 
       - name: Download RPM Packages
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-${{ matrix.arch }}-rpm
           path: artifacts/pkgs/incoming
@@ -1706,7 +1741,12 @@ jobs:
       - prepare-workflow
       - build-windows-pkgs
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Setup Python Tools Scripts
         uses: ./.github/actions/setup-python-tools-scripts
@@ -1718,25 +1758,25 @@ jobs:
           echo "SPB_ENVIRONMENT=$SPB_ENVIRONMENT" >> "$GITHUB_ENV"
 
       - name: Download Windows NSIS x86 Packages
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-x86-NSIS
           path: artifacts/pkgs/incoming
 
       - name: Download Windows MSI x86 Packages
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-x86-MSI
           path: artifacts/pkgs/incoming
 
       - name: Download Windows NSIS amd64 Packages
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-amd64-NSIS
           path: artifacts/pkgs/incoming
 
       - name: Download Windows MSI amd64 Packages
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-amd64-MSI
           path: artifacts/pkgs/incoming
@@ -1800,7 +1840,12 @@ jobs:
       - prepare-workflow
       - build-macos-pkgs
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Setup Python Tools Scripts
         uses: ./.github/actions/setup-python-tools-scripts
@@ -1812,7 +1857,7 @@ jobs:
           echo "SPB_ENVIRONMENT=$SPB_ENVIRONMENT" >> "$GITHUB_ENV"
 
       - name: Download macOS x86_64 Packages
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-x86_64-macos
           path: artifacts/pkgs/incoming
@@ -1876,7 +1921,12 @@ jobs:
       - prepare-workflow
       - build-salt-onedir
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Setup Python Tools Scripts
         uses: ./.github/actions/setup-python-tools-scripts
@@ -1888,43 +1938,43 @@ jobs:
           echo "SPB_ENVIRONMENT=$SPB_ENVIRONMENT" >> "$GITHUB_ENV"
 
       - name: Download Linux x86_64 Onedir Archive
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-onedir-linux-x86_64.tar.xz
           path: artifacts/pkgs/incoming
 
       - name: Download Linux aarch64 Onedir Archive
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-onedir-linux-aarch64.tar.xz
           path: artifacts/pkgs/incoming
 
       - name: Download macOS x86_64 Onedir Archive
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-onedir-darwin-x86_64.tar.xz
           path: artifacts/pkgs/incoming
 
       - name: Download Windows amd64 Onedir Archive
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-onedir-windows-amd64.tar.xz
           path: artifacts/pkgs/incoming
 
       - name: Download Windows amd64 Onedir Archive(zip)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-onedir-windows-amd64.zip
           path: artifacts/pkgs/incoming
 
       - name: Download Windows x86 Onedir Archive
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-onedir-windows-x86.tar.xz
           path: artifacts/pkgs/incoming
 
       - name: Download Windows amd64 Onedir Archive(zip)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-onedir-windows-x86.zip
           path: artifacts/pkgs/incoming
@@ -1995,7 +2045,12 @@ jobs:
       - build-onedir-repo
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Get Salt Project GitHub Actions Bot Environment
         run: |
@@ -2007,7 +2062,7 @@ jobs:
         uses: ./.github/actions/setup-python-tools-scripts
 
       - name: Download Repository Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-staging-repo
           path: repo/
@@ -2040,7 +2095,12 @@ jobs:
       - linux
       - repo-staging
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Get Salt Project GitHub Actions Bot Environment
         run: |
@@ -2052,25 +2112,25 @@ jobs:
         uses: ./.github/actions/setup-python-tools-scripts
 
       - name: Download Release Patch
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}.patch
           path: artifacts/release
 
       - name: Download Source Repository
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-staging-src-repo
           path: artifacts/release
 
       - name: Download Release Documentation (HTML)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ needs.prepare-workflow.outputs.salt-version }}-docs-html.tar.xz
           path: artifacts/release
 
       - name: Download Release Documentation (ePub)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: Salt-${{ needs.prepare-workflow.outputs.salt-version }}.epub
           path: artifacts/release
@@ -2084,7 +2144,7 @@ jobs:
           tools release upload-artifacts ${{ needs.prepare-workflow.outputs.salt-version }} artifacts/release
 
       - name: Upload PyPi Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: pypi-artifacts
           path: |
@@ -2788,7 +2848,12 @@ jobs:
       - linux
       - repo-staging
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Setup Python Tools Scripts
         uses: ./.github/actions/setup-python-tools-scripts
@@ -2818,7 +2883,7 @@ jobs:
           echo "twine-password=$TWINE_PASSWORD" >> "${GITHUB_OUTPUT}"
 
       - name: Download PyPi Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: pypi-artifacts
           path: artifacts/release
@@ -2847,9 +2912,14 @@ jobs:
       - upload-release-artifacts
       - publish-pypi
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
       - name: Get workflow information
         id: get-workflow-info
-        uses: technote-space/workflow-conclusion-action@v3
+        uses: technote-space/workflow-conclusion-action@45ce8e0eb155657ab8ccf346ade734257fd196a5 # v3.0.3
 
       - name: Set Pipeline Exit Status
         shell: bash

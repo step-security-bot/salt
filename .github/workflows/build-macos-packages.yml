@@ -43,6 +43,11 @@ jobs:
       - macos-12
     steps:
 
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
       - name: Check Package Signing Enabled
         shell: bash
         id: check-pkg-sign
@@ -66,8 +71,8 @@ jobs:
             echo "sign-pkgs=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # v4.7.0
         with:
           python-version: 3.9
 
@@ -81,7 +86,7 @@ jobs:
           salt-version: "${{ inputs.salt-version }}"
 
       - name: Download Onedir Tarball as an Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: salt-${{ inputs.salt-version }}-onedir-darwin-${{ matrix.arch }}.tar.xz
           path: artifacts/
@@ -134,7 +139,7 @@ jobs:
           fi
 
       - name: Upload ${{ matrix.arch }} Package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: ${{ steps.set-artifact-name.outputs.artifact-name }}
           path: pkg/macos/salt-${{ inputs.salt-version }}-py3-*.pkg

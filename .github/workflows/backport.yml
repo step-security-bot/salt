@@ -32,8 +32,13 @@ jobs:
         || (github.event.action == 'closed')
       )
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
       - name: Backport Action
-        uses: sqren/backport-github-action@v8.9.7
+        uses: sqren/backport-github-action@e325a2d70df7264afa24c92b1d5feb2278ff63af # v8.9.7
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           auto_backport_label_prefix: "backport:"
