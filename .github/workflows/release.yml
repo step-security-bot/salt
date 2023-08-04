@@ -38,8 +38,13 @@ jobs:
     runs-on: ubuntu-latest
     environment: release-check
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
       - name: Check For Admin Permission
-        uses: actions-cool/check-user-permission@v2
+        uses: actions-cool/check-user-permission@cd622002ff25c2311d2e7fb82107c0d24be83f9b # v2.2.0
         with:
           require: admin
           username: ${{ github.triggering_actor }}
@@ -59,12 +64,17 @@ jobs:
       latest-release: ${{ steps.get-salt-releases.outputs.latest-release }}
       releases: ${{ steps.get-salt-releases.outputs.releases }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
         with:
           fetch-depth: 0  # Full clone to also get the tags to get the right salt version
 
       - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # v4.7.0
         with:
           python-version: "3.10"
 
@@ -136,7 +146,12 @@ jobs:
           - platform: darwin
             arch: x86_64
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Setup Python Tools Scripts
         uses: ./.github/actions/setup-python-tools-scripts
@@ -152,7 +167,7 @@ jobs:
           tools release download-onedir-artifact --platform=${{ matrix.platform }} --arch=${{ matrix.arch }} ${{ inputs.salt-version }}
 
       - name: Upload Onedir Tarball as an Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: salt-${{ inputs.salt-version }}-onedir-${{ matrix.platform }}-${{ matrix.arch }}.tar.xz
           path: artifacts/salt-${{ inputs.salt-version }}-onedir-${{ matrix.platform }}-${{ matrix.arch }}.tar.xz*
@@ -172,11 +187,16 @@ jobs:
       backup-complete: ${{ steps.backup.outputs.backup-complete }}
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
       - name: Clone The Salt Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Setup Rclone
-        uses: AnimMouse/setup-rclone@v1
+        uses: AnimMouse/setup-rclone@b47afb7d299eb639618d2120059d8374065bd84a # v1.5.1
         with:
           version: v1.61.1
 
@@ -201,8 +221,13 @@ jobs:
     environment: release
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
       - name: Clone The Salt Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Get Salt Project GitHub Actions Bot Environment
         run: |
@@ -905,8 +930,13 @@ jobs:
       - windows-2022-Onedir-amd64-download-tests
     environment: release
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
       - name: Clone The Salt Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
         with:
           ssh-key: ${{ secrets.GHA_SSH_KEY }}
 
@@ -975,7 +1005,7 @@ jobs:
           branch: ${{ github.ref }}
 
       - name: Create Github Release
-        uses: ncipollo/release-action@v1.12.0
+        uses: ncipollo/release-action@a2e71bdd4e7dab70ca26a852f29600c98b33153e # v1.12.0
         with:
           artifactErrorsFailBuild: true
           artifacts: ${{ steps.prepare-release.outputs.release-artifacts }}
@@ -990,7 +1020,7 @@ jobs:
           tag: v${{ needs.prepare-workflow.outputs.salt-version }}
 
       - name: Upload PyPi Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: pypi-artifacts
           path: |
@@ -1011,7 +1041,12 @@ jobs:
       - linux
       - repo-release
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Setup Python Tools Scripts
         uses: ./.github/actions/setup-python-tools-scripts
@@ -1041,7 +1076,7 @@ jobs:
           echo "twine-password=$TWINE_PASSWORD" >> "${GITHUB_OUTPUT}"
 
       - name: Download PyPi Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: pypi-artifacts
           path: artifacts/release
@@ -1065,9 +1100,14 @@ jobs:
       - release
       - publish-pypi
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
       - name: Get workflow information
         id: get-workflow-info
-        uses: technote-space/workflow-conclusion-action@v3
+        uses: technote-space/workflow-conclusion-action@45ce8e0eb155657ab8ccf346ade734257fd196a5 # v3.0.3
 
       - run: |
           # shellcheck disable=SC2129

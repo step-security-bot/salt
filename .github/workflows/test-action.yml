@@ -69,8 +69,13 @@ jobs:
       matrix-include: ${{ steps.generate-matrix.outputs.matrix }}
       transport-matrix-include: ${{ steps.generate-transport-matrix.outputs.matrix }}
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
       - name: Checkout Source Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Setup Python Tools Scripts
         uses: ./.github/actions/setup-python-tools-scripts
@@ -103,19 +108,24 @@ jobs:
       matrix:
         include: ${{ fromJSON(needs.generate-matrix.outputs.transport-matrix-include) }}
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
       - name: Checkout Source Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Cache nox.${{ inputs.distro-slug }}.tar.* for session ${{ inputs.nox-session }}
         id: nox-dependencies-cache
-        uses: actions/cache@v3
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
         with:
           path: nox.${{ inputs.distro-slug }}.tar.*
           key: ${{ inputs.cache-prefix }}|testrun-deps|${{ inputs.distro-slug }}|${{ inputs.nox-session }}|${{ matrix.transport }}|${{ hashFiles('requirements/**/*.txt', 'cicd/golden-images.json', 'noxfile.py') }}
 
       - name: Download Onedir Tarball as an Artifact
         if: steps.nox-dependencies-cache.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: ${{ inputs.package-name }}-${{ inputs.salt-version }}-onedir-${{ inputs.platform }}-${{ inputs.arch }}.tar.xz
           path: artifacts/
@@ -197,7 +207,7 @@ jobs:
           tools --timestamps vm destroy --no-wait ${{ inputs.distro-slug }}
 
       - name: Upload Nox Requirements Tarball
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: nox-${{ inputs.distro-slug }}-${{ steps.define-nox-session.outputs.nox-session }}
           path: nox.${{ inputs.distro-slug }}.tar.*
@@ -218,15 +228,20 @@ jobs:
         include: ${{ fromJSON(needs.generate-matrix.outputs.matrix-include) }}
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
       - name: Checkout Source Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Setup Salt Version
         run: |
           echo "${{ inputs.salt-version }}" > salt/_version.txt
 
       - name: Download Onedir Tarball as an Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: ${{ inputs.package-name }}-${{ inputs.salt-version }}-onedir-${{ inputs.platform }}-${{ inputs.arch }}.tar.xz
           path: artifacts/
@@ -239,7 +254,7 @@ jobs:
           tar xvf ${{ inputs.package-name }}-${{ inputs.salt-version }}-onedir-${{ inputs.platform }}-${{ inputs.arch }}.tar.xz
 
       - name: Download cached nox.${{ inputs.distro-slug }}.tar.* for session ${{ inputs.nox-session }}
-        uses: actions/cache@v3
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
         with:
           path: nox.${{ inputs.distro-slug }}.tar.*
           key: ${{ inputs.cache-prefix }}|testrun-deps|${{ inputs.distro-slug }}|${{ inputs.nox-session }}|${{ matrix.transport }}|${{ hashFiles('requirements/**/*.txt', 'cicd/golden-images.json', 'noxfile.py') }}
@@ -263,7 +278,7 @@ jobs:
 
       - name: Download testrun-changed-files.txt
         if: ${{ fromJSON(inputs.testrun)['type'] != 'full' }}
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: testrun-changed-files.txt
 
@@ -391,7 +406,7 @@ jobs:
 
       - name: Upload Code Coverage Test Run Artifacts
         if: always() && inputs.skip-code-coverage == false && steps.download-artifacts-from-vm.outcome == 'success' && job.status != 'cancelled'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: testrun-coverage-artifacts-${{ inputs.distro-slug }}-${{ env.NOX_SESSION }}
           path: |
@@ -399,7 +414,7 @@ jobs:
 
       - name: Upload JUnit XML Test Run Artifacts
         if: always() && steps.download-artifacts-from-vm.outcome == 'success' && job.status != 'cancelled'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: testrun-junit-artifacts-${{ inputs.distro-slug }}-${{ env.NOX_SESSION }}
           path: |
@@ -407,7 +422,7 @@ jobs:
 
       - name: Upload Test Run Log Artifacts
         if: always() && steps.download-artifacts-from-vm.outcome == 'success' && job.status != 'cancelled'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: testrun-log-artifacts-${{ inputs.distro-slug }}-${{ env.NOX_SESSION }}
           path: |
@@ -430,8 +445,13 @@ jobs:
         include: ${{ fromJSON(needs.generate-matrix.outputs.transport-matrix-include) }}
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
       - name: Checkout Source Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Define Nox Session
         run: |
@@ -442,7 +462,7 @@ jobs:
           fi
 
       - name: Download Code Coverage Test Run Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         if: ${{ inputs.skip-code-coverage == false }}
         id: download-coverage-artifacts
         with:
@@ -450,7 +470,7 @@ jobs:
           path: artifacts/coverage/
 
       - name: Download JUnit XML Test Run Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         id: download-junit-artifacts
         with:
           name: testrun-junit-artifacts-${{ inputs.distro-slug }}-${{ env.NOX_SESSION }}
@@ -472,7 +492,7 @@ jobs:
 
       - name: Upload Code Coverage DB
         if: always() && inputs.skip-code-coverage == false && steps.download-coverage-artifacts.outcome == 'success'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: code-coverage
           path: artifacts/coverage
@@ -496,7 +516,7 @@ jobs:
           nox --force-color -e report-coverage
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v3
+        uses: mikepenz/action-junit-report@150e2f992e4fad1379da2056d1d1c279f520e058 # v3.8.0
         # always run even if the previous steps fails
         if: always() && inputs.skip-junit-reports == false && steps.download-junit-artifacts.outcome == 'success'
         with:

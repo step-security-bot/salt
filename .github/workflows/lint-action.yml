@@ -15,6 +15,9 @@ env:
   PIP_EXTRA_INDEX_URL: https://pypi.org/simple
 
 
+permissions:
+  contents: read
+
 jobs:
   Salt:
     name: Lint Salt's Source Code
@@ -25,6 +28,11 @@ jobs:
       image: python:3.8-slim-buster
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
       - name: Install System Deps
         run: |
           echo "deb http://deb.debian.org/debian buster-backports main" >> /etc/apt/sources.list
@@ -32,7 +40,7 @@ jobs:
           apt-get install -y enchant git gcc make zlib1g-dev libc-dev libffi-dev g++ libxml2 libxml2-dev libxslt-dev libcurl4-openssl-dev libssl-dev libgnutls28-dev
           apt-get install -y git/buster-backports
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Install Nox
         run: |
@@ -67,6 +75,11 @@ jobs:
       image: python:3.8-slim-buster
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
       - name: Install System Deps
         run: |
           echo "deb http://deb.debian.org/debian buster-backports main" >> /etc/apt/sources.list
@@ -74,7 +87,7 @@ jobs:
           apt-get install -y enchant git gcc make zlib1g-dev libc-dev libffi-dev g++ libxml2 libxml2-dev libxslt-dev libcurl4-openssl-dev libssl-dev libgnutls28-dev
           apt-get install -y git/buster-backports
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
       - name: Install Nox
         run: |
